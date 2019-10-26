@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Java并发笔记01 | Koala`s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="CPU处理速度与IO之间的速度不匹配，因此使用Cache来解决。多核心与多个Cache的结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。">
+<meta name="keywords" content="多线程,并发,Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发笔记01">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;26&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001&#x2F;index.html">
+<meta property="og:site_name" content="Koala`s blog">
+<meta property="og:description" content="CPU处理速度与IO之间的速度不匹配，因此使用Cache来解决。多核心与多个Cache的结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-26T05:01:52.885Z">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Koala`s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Koala`s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Java并发笔记01" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/26/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001/" class="article-date">
+  <time datetime="2019-10-26T04:45:50.000Z" itemprop="datePublished">2019-10-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java并发笔记01
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+	  
+	  <!-- 文章目录 -->
+    
+	  
+	  
+        <p>CPU处理速度与IO之间的速度不匹配，因此使用Cache来解决。多核心与多个Cache的结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。</p>
+ <a id="more"></a>
+
+<p>参考：<a href="https://www.cnblogs.com/xrq730/p/7048693.html" target="_blank" rel="noopener">https://www.cnblogs.com/xrq730/p/7048693.html</a></p>
+<h3 id="CPU多级缓存"><a href="#CPU多级缓存" class="headerlink" title="CPU多级缓存"></a>CPU多级缓存</h3><p><strong>为什么需要CPU cache:</strong><br>CPU的频率太快了，快到主存跟不上，这样在处理器时钟周期内，CPU常常需要等待主存，浪费资源。所以cache的出现，是为了缓解CPU和内存之间速度的不匹配问题(结构：cpu-&gt;cache-&gt;memory)</p>
+<p><strong>CPU cache有什么意义</strong><br>1）时间局部性：如果某个数据被访问，那么在不久的将来它很可能再次被访问<br>2）空间局部性：如果某个数据被访问，那么与它相邻的数据很快也能被访问。</p>
+<h3 id="CPU多级缓存-缓存一致性-MESI"><a href="#CPU多级缓存-缓存一致性-MESI" class="headerlink" title="CPU多级缓存-缓存一致性(MESI)"></a><strong>CPU多级缓存-缓存一致性(MESI)</strong></h3><p>​    MESI为了保证多个CPU缓存中共享数据的一致性，定义了cache line的四种状态，而CPU对cache line的四种操作可能会产生不一致的状态，因此缓存控制器监听到本地操作和远程操作的时候，需要对地址一致的cache line 状态进行一致性修改，从而保证数据在多个缓存之间保持一致性(M:modified   E:Exclusive   S:shared   I:invalid) </p>
+<p>CPU中每个缓存行（caceh line)使用4种状态进行标记（使用额外的两位(bit)表示):<br><strong>M: 被修改（Modified)</strong><br>该缓存行只被缓存在该CPU的缓存中，并且是被修改过的（dirty),即与主存中的数据不一致，该缓存行中的内存需要在未来的某个时间点（允许其它CPU读取请主存中相应内存之前）写回（write back）主存。当被写回主存之后，该缓存行的状态会变成独享（exclusive)状态。<br><strong>E: 独享的（Exclusive)</strong><br>该缓存行只被缓存在该CPU的缓存中，它是未被修改过的（clean)，与主存中数据一致。该状态可以在任何时刻当有其它CPU读取该内存时变成共享状态（shared)。同样地，当CPU修改该缓存行中内容时，该状态可以变成Modified状态。<br><strong>S: 共享的（Shared)</strong><br>该状态意味着该缓存行可能被多个CPU缓存，并且各个缓存中的数据与主存数据一致（clean)，当有一个CPU修改该缓存行中，其它CPU中该缓存行可以被作废（变成无效状态（Invalid））。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">该无效即可能有其它CPU修改了该缓存行。</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在一个典型系统中，可能会有几个缓存（在多核系统中，每个核心都会有自己的缓存）共享主存总线，每个相应的CPU会发出读写请求，而缓存的目的是为了减少CPU读写共享主存的次数。<br>        <strong>读请求</strong>：一个缓存除在Invalid状态外都可以满足cpu的读请求，一个invalid的缓存行必须从主存中读取（变成S或者 E状态）来满足该CPU的读请求。<br>        <strong>写请求</strong>：只有在该缓存行是M或者E状态时才能被执行。如果缓存行处于S状态，必须先将其它缓存中该缓存行变成Invalid状态（也既是不允许不同CPU同时修改同一缓存行，即使修改该缓存行中不同位置的数据也不允许）。该操作经常作用广播的方式来完成，例如：Request For Ownership (RFO)<br>        缓存可以随时将一个非M状态的缓存行作废，或者变成Invalid状态，而一个M状态的缓存行必须先被写回主存。<br>        一个处于M状态的缓存行必须时刻监听所有试图读该缓存行相对就主存的操作，这种操作必须在缓存将该缓存行写回主存并将状态变成S状态之前被延迟执行。<br>        一个处于S状态的缓存行也必须监听其它缓存使该缓存行无效或者独享该缓存行的请求，并将该缓存行变成无效（Invalid）。<br>    一个处于E状态的缓存行也必须监听其它缓存读主存中该缓存行的操作，一旦有这种操作，该缓存行需要变成S状态。</p>
+<p>从上面的意义看来E状态是一种投机性的优化：如果一个CPU想修改一个处于S状态的缓存行，总线事务需要将所有该缓存行的copy变成invalid状态，而修改E状态的缓存不需要使用总线事务。</p>
+<h3 id="volatile关键字修饰的变量"><a href="#volatile关键字修饰的变量" class="headerlink" title="volatile关键字修饰的变量"></a><strong>volatile关键字修饰的变量</strong></h3><ul>
+<li>目的：变量修改对其他线程可见。</li>
+<li>原理：添加lock前缀指令，实现了内存屏障的功能。1、写操作立即更新主存。2、写操作使得其他线程缓存无效。</li>
+</ul>
+<p>lock前缀指令的作用</p>
+<ul>
+<li>锁总线。（或锁缓存，在共享变量仅存在与一个处理器的缓存中时，无需锁总线，保证当前线程锁这缓存中的共享变量即可。）</li>
+<li>保证lock后的写操作会回写到主存。令其他CPU缓存行失效</li>
+<li>实现了内存屏障的功能。</li>
+</ul>
+<h3 id="缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。"><a href="#缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。" class="headerlink" title="缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。"></a>缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。</h3><p><strong>缓存一致性协议</strong>：</p>
+<ul>
+<li>写内存操作会使其他CPU的缓存失效</li>
+<li>多处理器环境，为了保证缓存一致。使修改对其他处理器可见。</li>
+</ul>
+<blockquote>
+<p>但是需要注意，缓存一致性协议能满足的是，线程a修改了共享变量i.线程b<strong>随后</strong>使用变量i时，如果i在缓存行中，会失效，需要去主存中重新读。如果i不在缓存行中，需要去主存中读。</p>
+</blockquote>
+<p><strong>为什么有了缓存一致性原则，还是不能保证多线程环境下修改共享变量的正确性？</strong></p>
+<ul>
+<li>修改本身不是原子操作。修改意味着读改写。</li>
+<li>对普通变量来讲，修改后的值写入缓存中。意味着对共享变量的修改并不会立即发生在内存上，当然缓存一致性也就无法发挥作用了。</li>
+</ul>
+<blockquote>
+<p>场景：</p>
+<ul>
+<li>线程a读共享变量i，i被从主存中加载到了缓存中</li>
+<li>此时线程b也读了i，到自己的缓存。</li>
+<li>接着，线程a修改了变量i的值写入缓存。（并不会直接更改内存，因此缓存一致性未起作用）</li>
+<li>然后线程b也修改了i的值并写入缓存。</li>
+<li>线程a将缓存写入主存</li>
+<li>线程b将缓存写入主存。<strong><em>Duang ,冲突发生了</em>，主存中的值相当于只被线程b修改过。</strong></li>
+</ul>
+</blockquote>
+<ul>
+<li>因此需要volatile保证变量写的可见性。即写操作会直接更新到内存。</li>
+<li>注意volatile仅保证写操作对其他线程的可见性。并不能保证多个线程i++的正确性。</li>
+<li>可以通过volatile + CAS竞争的方式保证i++的正确。</li>
+</ul>
+<p>concurrent包实现</p>
+<p>CAS与volatile具有相同的读/写内存语义。因此<em>Java线程之间的通信现在有了下面4种方式</em>。<br>1）A线程写volatile变量，随后B线程读这个volatile变量。<br>2）A线程写volatile变量，随后B线程用CAS更新这个volatile变量。<br>3）A线程用CAS更新一个volatile变量，随后B线程用CAS更新这个volatile变量。<br>4）A线程用CAS更新一个volatile变量，随后B线程读这个volatile变量。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/10/26/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001/" data-id="ck273lnwk00005kt6frk8colp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/10/23/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Hello World</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 10px;">多线程</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" style="font-size: 10px;">并发</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/10/26/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001/">Java并发笔记01</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/23/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Han Wang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="http://apps.bdimg.com/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof jQuery == 'undefined') {
+document.write(unescape("%3Cscript src='/js/jquery-2.0.3.min.js' type='text/javascript'%3E%3C/script%3E"));
+}
+// ]]>
+</script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
