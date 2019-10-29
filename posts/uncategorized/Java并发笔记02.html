@@ -11,16 +11,16 @@
 <meta name="keywords" content="多线程,并发,Synchronized,偏向锁,轻量锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java并发笔记02">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;29&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002&#x2F;index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;posts&#x2F;uncategorized&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">
 <meta property="og:site_name" content="Koala`s blog">
 <meta property="og:description" content="无论是逻辑上高层次的并发控制，如Java多线程场景下的同步、JVM的Synchronized、JUC包的各种Lock；或是底层硬件CPU多核场景下的缓存一致性协议，都是利用协议解决共享资源被并发访问时的一致性问题。而synchronized是JVM提支持的同步方式，并且在JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;29&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002&#x2F;images%5Cmarkword.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;29&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002&#x2F;images%5ClightWeightLock.PNG">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;29&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002&#x2F;images%5CbiasLock.png">
-<meta property="og:updated_time" content="2019-10-29T13:53:11.437Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;08772db8&#x2F;big.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;8788a730&#x2F;f0329086.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;501f27ed&#x2F;big.png">
+<meta property="og:updated_time" content="2019-10-29T15:24:03.003Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;29&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002&#x2F;images%5Cmarkword.png">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;08772db8&#x2F;big.png">
   
     <link rel="alternate" href="/atom.xml" title="Koala`s blog" type="application/atom+xml">
   
@@ -69,7 +69,7 @@
       <div class="outer">
         <section id="main"><article id="post-Java并发笔记02" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/10/29/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002/" class="article-date">
+    <a href="/posts/uncategorized/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" class="article-date">
   <time datetime="2019-10-29T12:01:05.000Z" itemprop="datePublished">2019-10-29</time>
 </a>
     
@@ -107,7 +107,7 @@
 <h3 id="2、三种锁的原理"><a href="#2、三种锁的原理" class="headerlink" title="2、三种锁的原理"></a>2、三种锁的原理</h3><h4 id="2-1-对象头"><a href="#2-1-对象头" class="headerlink" title="2.1 对象头"></a>2.1 对象头</h4><p>对象头可以理解为对象的meta data,存储了描述对象的数据，基本结构如下表格（32位虚拟机位64bit,64位虚拟机位128bit）：</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">|--------------------------------------------------------------|</span></span><br><span class="line"><span class="params">|                     Object Header (64 bits)                  |</span></span><br><span class="line"><span class="params">|------------------------------------|</span>-------------------------<span class="params">|</span></span><br><span class="line"><span class="params">|</span>        Mark Word (<span class="number">32</span> bits)         <span class="params">|    Klass Word (32 bits) |</span></span><br><span class="line"><span class="params">|------------------------------------|</span>-------------------------<span class="params">|</span></span><br></pre></td></tr></table></figure>
 
-<p><img src="images%5Cmarkword.png" alt=""></p>
+<p><img src="https://pic.yupoo.com/koala6/08772db8/big.png" alt=""></p>
 <ul>
 <li>对象实例在堆上由三部分组成：对象头、对象实例、对齐数据。</li>
 <li>对象头由两部分组成：Mark Word和指向元数据的指针。</li>
@@ -123,7 +123,7 @@
 <p>偏向的意思是，假定将来只有第一个申请锁的线程会使用锁（不会有任何线程再来申请锁），因此，只需要在Mark Word中CAS记录owner，如果记录成功，则偏向锁获取成功，记录锁状态为偏向锁，以后偏向持有线程只需检查对象头，就可以零成本进入。并且退出时，看一眼对象头没被改变，那么就直接退出。</p>
 <p><strong>优势</strong></p>
 <p>在始终只有一个线程进入临界区这样的条件下（实际这种情况还很常见），若仅有轻量级锁，那么每次加锁与释放都要进行CAS操作，这个操作是昂贵。设计偏向锁就是节省掉这种本可避免的CAS开销。</p>
-<h4 id="2-2-轻量级锁"><a href="#2-2-轻量级锁" class="headerlink" title="2.2 轻量级锁"></a>2.2 轻量级锁</h4><p><img src="images%5ClightWeightLock.PNG" alt=""></p>
+<h4 id="2-2-轻量级锁"><a href="#2-2-轻量级锁" class="headerlink" title="2.2 轻量级锁"></a>2.2 轻量级锁</h4><p><img src="https://pic.yupoo.com/koala6/8788a730/f0329086.png" alt=""></p>
 <p><strong>使用场景：</strong>多个线程无实际竞争，只会交替进入同步代码。</p>
 <p><strong>优势：</strong>在上述场景下，可以采用自旋的方式，避免竞争发生直接升级重量级锁。</p>
 <p><strong>加锁方式：</strong>①在尝试获取锁线程的栈帧中建立LockRecord，用于存储锁对象目前的 Mark Word 的拷（Displaced Mark Word） ②使用CAS操作尝试将对象Mark Word中，除锁标识外的空间，指向栈帧中建立LockRecord  ③CAS成功的话，直接进入同步代码。失败的话，查看是否本来就指向自己，若是则进入同步代码，若不是则根据竞争状况自旋或膨胀。<strong>这里的情况说明一下</strong>，如果现共两个线程（一个持锁，一个等），那么等待的线程自旋规定的次数，拿到就继续轻量级锁，拿不到就升级。如果大于两个线程，那么第一个线程自旋等待，并改变标志位膨胀为重量级锁，后续线程被阻塞等待唤醒。（ps. 这里CAS的期望值为无锁状态，因此失败的话，要检查是不是指向的是自己）</p>
@@ -194,7 +194,7 @@
 <p>偏向锁适合只有一个线程会进入临界区；轻量锁适合多个线程，但交替进入临界区，无实际竞争；重量锁即有实际竞争，且等待之间较长。</p>
 <p>三类锁，就是为不同程度下的竞争而设计。只有一个线程一直进入临界区，使用偏向锁。有若干线程，交替，不同时进入临界区，使用轻量级锁。并且轻量级锁会在两个线程竞争轻微的情况下使用自旋优化。在严重竞争，CPU忙等时间较长的情况下，将使用重量级锁，直接对其他线程进行阻塞。</p>
 <p><strong>偏向锁的膨胀</strong></p>
-<p><img src="images%5CbiasLock.png" alt=""></p>
+<p><img src="https://pic.yupoo.com/koala6/501f27ed/big.png" alt=""></p>
 <p><strong>有竞争时候，两种情况</strong></p>
 <p>第一种，开始设置CAS对象头偏向自己的时候失败，这说明有直接竞争，将进行偏向锁的撤销<code>revoke bias</code>。</p>
 <p>第二种，某个线程进入同步块检查对象头，发现末尾是101但是<code>Thread ID</code>并未指向自己，因此无法顺利进入。此时面临两种可能：</p>
@@ -247,7 +247,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/10/29/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002/" data-id="ck2bwvv3c00017wt61kf33l0r" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/posts/uncategorized/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" data-id="ck2c082160001f4t699n6a45f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Synchronized/" rel="tag">Synchronized</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%81%8F%E5%90%91%E9%94%81/" rel="tag">偏向锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%BB%E9%87%8F%E9%94%81/" rel="tag">轻量锁</a></li></ul>
@@ -259,7 +259,7 @@
 <nav id="article-nav">
   
   
-    <a href="/2019/10/26/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/posts/uncategorized/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">Java并发笔记01</div>
     </a>
@@ -312,15 +312,15 @@
       <ul>
         
           <li>
-            <a href="/2019/10/29/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002/">Java并发笔记02</a>
+            <a href="/posts/uncategorized/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">Java并发笔记02</a>
           </li>
         
           <li>
-            <a href="/2019/10/26/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001/">Java并发笔记01</a>
+            <a href="/posts/uncategorized/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html">Java并发笔记01</a>
           </li>
         
           <li>
-            <a href="/2019/10/23/hello-world/">Hello World</a>
+            <a href="/posts/uncategorized/hello-world.html">Hello World</a>
           </li>
         
       </ul>
