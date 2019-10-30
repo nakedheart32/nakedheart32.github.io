@@ -77,7 +77,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">Java并发笔记02</a>
+      <a class="article-title" href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">Java并发笔记02-Synchronized</a>
     </h1>
   
 
@@ -86,7 +86,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>无论是逻辑上高层次的并发控制：JVM的<code>Synchronized</code>、JUC包的各种<code>Lock</code>；或是底层硬件CPU多核场景下的缓存一致性协议MESI，目的都是解决并发的数据一致性。synchronized是JVM提的同步方式，JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。</p>
-<p><img src="https://pic.yupoo.com/koala6/c4ca88d4/a930fabf.jpg" alt=""></p>
+<p><img src="https://pic.yupoo.com/koala6/ec293a03/7975b60b.jpeg" alt=""></p>
         
           <p class="article-more-link">
             <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html#more">阅读更多</a>
@@ -95,7 +95,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" data-id="ck2co6e5s0001gkt69y30fyjb" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" data-id="ck2cqj6v10000mwt6fnhuaq2p" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Synchronized/" rel="tag">Synchronized</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%81%8F%E5%90%91%E9%94%81/" rel="tag">偏向锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%BB%E9%87%8F%E9%94%81/" rel="tag">轻量锁</a></li></ul>
@@ -121,7 +121,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html">Java并发笔记01</a>
+      <a class="article-title" href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html">Java并发笔记01-volatile</a>
     </h1>
   
 
@@ -129,7 +129,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>CPU与IO之间速度不匹配，因此要使用Cache来协调。多核心，多个缓存与一个主内存的硬件结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。</p>
+        <p><img src="https://pic.yupoo.com/koala6/8e5b1c6e/1aaaaa35.jpg" alt=""></p>
+<p>CPU与IO之间速度不匹配，因此要使用Cache来协调。多核心，多个缓存与一个主内存的硬件结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。</p>
         
           <p class="article-more-link">
             <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html#more">阅读更多</a>
@@ -138,7 +139,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html" data-id="ck2co6e5o0000gkt62hq39jrj" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html" data-id="ck2cqj6v60001mwt69nwr3usy" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li></ul>
@@ -194,7 +195,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/articles/hello-world.html" data-id="ck2co6e6a000igkt6fclg04z1" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/articles/hello-world.html" data-id="ck2cqj6v90003mwt694pa1o3y" class="article-share-link">Share</a>
       
       
     </footer>
@@ -249,11 +250,11 @@
       <ul>
         
           <li>
-            <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">Java并发笔记02</a>
+            <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">Java并发笔记02-Synchronized</a>
           </li>
         
           <li>
-            <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html">Java并发笔记01</a>
+            <a href="/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html">Java并发笔记01-volatile</a>
           </li>
         
           <li>
