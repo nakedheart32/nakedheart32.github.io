@@ -7,20 +7,21 @@
   
   <title>Java并发笔记02 | Koala`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="无论是逻辑上高层次的并发控制，如Java多线程场景下的同步、JVM的Synchronized、JUC包的各种Lock；或是底层硬件CPU多核场景下的缓存一致性协议，都是利用协议解决共享资源被并发访问时的一致性问题。而synchronized是JVM提支持的同步方式，并且在JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。">
+  <meta name="description" content="无论是逻辑上高层次的并发控制：JVM的Synchronized、JUC包的各种Lock；或是底层硬件CPU多核场景下的缓存一致性协议MESI，目的都是解决并发的数据一致性。synchronized是JVM提的同步方式，JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。">
 <meta name="keywords" content="多线程,并发,Synchronized,偏向锁,轻量锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java并发笔记02">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;articles&#x2F;Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html">
 <meta property="og:site_name" content="Koala`s blog">
-<meta property="og:description" content="无论是逻辑上高层次的并发控制，如Java多线程场景下的同步、JVM的Synchronized、JUC包的各种Lock；或是底层硬件CPU多核场景下的缓存一致性协议，都是利用协议解决共享资源被并发访问时的一致性问题。而synchronized是JVM提支持的同步方式，并且在JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。">
+<meta property="og:description" content="无论是逻辑上高层次的并发控制：JVM的Synchronized、JUC包的各种Lock；或是底层硬件CPU多核场景下的缓存一致性协议MESI，目的都是解决并发的数据一致性。synchronized是JVM提的同步方式，JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;c4ca88d4&#x2F;a930fabf.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;08772db8&#x2F;big.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;8788a730&#x2F;f0329086.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;501f27ed&#x2F;big.png">
-<meta property="og:updated_time" content="2019-10-29T15:24:03.003Z">
+<meta property="og:updated_time" content="2019-10-30T02:37:15.839Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;08772db8&#x2F;big.png">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;c4ca88d4&#x2F;a930fabf.jpg">
   
     <link rel="alternate" href="/atom.xml" title="Koala`s blog" type="application/atom+xml">
   
@@ -94,7 +95,8 @@
     
 	  
 	  
-        <p>无论是逻辑上高层次的并发控制，如Java多线程场景下的同步、JVM的<code>Synchronized</code>、JUC包的各种<code>Lock</code>；或是底层硬件CPU多核场景下的缓存一致性协议，都是利用协议解决共享资源被并发访问时的一致性问题。而synchronized是JVM提支持的同步方式，并且在JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。</p>
+        <p>无论是逻辑上高层次的并发控制：JVM的<code>Synchronized</code>、JUC包的各种<code>Lock</code>；或是底层硬件CPU多核场景下的缓存一致性协议MESI，目的都是解决并发的数据一致性。synchronized是JVM提的同步方式，JDK6开始，引入了偏向锁，轻量级锁（配合自旋）优化性能。</p>
+<p><img src="https://pic.yupoo.com/koala6/c4ca88d4/a930fabf.jpg" alt=""></p>
  <a id="more"></a>
 
 <h3 id="1、JVM的同步机制Synchronized"><a href="#1、JVM的同步机制Synchronized" class="headerlink" title="1、JVM的同步机制Synchronized"></a>1、JVM的同步机制Synchronized</h3><h4 id="1-1Synchronized同步的方式："><a href="#1-1Synchronized同步的方式：" class="headerlink" title="1.1Synchronized同步的方式："></a>1.1Synchronized同步的方式：</h4><ul>
@@ -247,7 +249,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" data-id="ck2c17s4q00035st6d4w383co" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B002.html" data-id="ck2co6e5s0001gkt69y30fyjb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Synchronized/" rel="tag">Synchronized</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%81%8F%E5%90%91%E9%94%81/" rel="tag">偏向锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%BB%E9%87%8F%E9%94%81/" rel="tag">轻量锁</a></li></ul>
