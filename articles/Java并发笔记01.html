@@ -16,7 +16,7 @@
 <meta property="og:description" content="CPU与IO之间速度不匹配，因此要使用Cache来协调。多核心，多个缓存与一个主内存的硬件结构下，为了共享变量的一致，采用缓存一致性（MESI）协议。Java内存模型屏蔽硬件，向上提供了一个逻辑上的模型。JMM中使用Volatile关键字与CAS自旋机制来保证共享变量在多线程下的安全。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;8e5b1c6e&#x2F;1aaaaa35.jpg">
-<meta property="og:updated_time" content="2019-10-30T03:24:04.710Z">
+<meta property="og:updated_time" content="2019-11-07T14:50:49.787Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;8e5b1c6e&#x2F;1aaaaa35.jpg">
   
@@ -105,9 +105,12 @@
 <p>CPU核心进行local write时，即从核心写缓存时，若变量处于I状态，那么会将处于M状态的变量更新到内存，然后再从内存中读取最新的变量。</p>
 <p>在多核系统中，每个核心都会有自己的缓存，它们共享通往主内存的总线bus，每个相应的CPU会发出读写请求，而缓存的目的是为了减少CPU读写共享主存的次数。<br>        <strong>读请求</strong>：缓存中除了处于Invalid状态外的变量，都可以满足cpu的读请求，一个invalid的缓存行必须从主存中读取（变成S或者 E状态）来满足该CPU的读请求。<br>        <strong>写请求</strong>：只有在该缓存行是M或者E状态时才能被执行。如果缓存行处于S状态，必须先将其它缓存中该缓存行变成Invalid状态（也既是不允许不同CPU同时修改同一缓存行，即使修改该缓存行中不同位置的数据也不允许）。该操作经常作用广播的方式来完成。</p>
 <h3 id="volatile关键字修饰的变量"><a href="#volatile关键字修饰的变量" class="headerlink" title="volatile关键字修饰的变量"></a><strong>volatile关键字修饰的变量</strong></h3><ul>
-<li>目的：保证共享变量在线程间的可见性</li>
-<li>原理：添加lock前缀指令，实现了内存屏障的功能。1、写操作立即更新主存。2、写操作使得其他线程缓存无效（缓存一致性协议保证）。</li>
+<li>目的：保证共享变量在线程间的可见性。共享变量被线程a修改，立即能被其他线程感知。</li>
+<li>原理：添加lock前缀指令，实现了内存屏障的功能。</li>
+<li>内存屏障作用：①阻止屏障两边的指令重排序  ②强制把写缓存写回主内存。</li>
+<li>Lock前缀作用：锁总线/缓存，然后执行后面的指令，释放锁后把脏数据刷新回主内存。</li>
 </ul>
+<p>内存屏障&amp;缓存一致性，保证了线程修改共享变量a，会立即更新到主内存，同时其他缓存中的该变量失效。</p>
 <h3 id="缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。"><a href="#缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。" class="headerlink" title="缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。"></a>缓存一致性、内存屏障、锁总线、锁缓存概念的层次与区别。</h3><p><strong>缓存一致性协议</strong>：</p>
 <p>必要性：缓存一致性协议是最底层，最基本的协议。有多个核心的时候，没有缓存一致性协议，多个核心之间完全没法通信，更不用谈数据的一致性问题了。</p>
 <p>能做的有限：缓存一致性能够做到的，是某时刻，一个CPU修改缓存中的值。会告知其他缓存使得缓存行无效。<u>保证了同一时刻，只有一个核可以修改缓存。</u></p>
@@ -140,7 +143,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html" data-id="ck2kh15yi000i60t6dk4y5oiz" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/articles/Java%E5%B9%B6%E5%8F%91%E7%AC%94%E8%AE%B001.html" data-id="ck2otxkzy0000lot63m9ueipw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B9%B6%E5%8F%91/" rel="tag">并发</a></li></ul>
