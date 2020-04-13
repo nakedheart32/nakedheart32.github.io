@@ -5,16 +5,22 @@
   
 
   
-  <title>Archives: 2020 | Koala`s blog</title>
+  <title>MySQL—日志 | Koala`s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="只能留给你雨水一盒">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Koala`s blog">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;archives&#x2F;2020&#x2F;index.html">
+  <meta name="description" content="redo log和binlog区别；redo log介绍；undo log介绍；mvcc介绍；可重复读原理。">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL—日志">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;articles&#x2F;MySQL%E7%9A%84%E6%97%A5%E5%BF%97.html">
 <meta property="og:site_name" content="Koala`s blog">
-<meta property="og:description" content="只能留给你雨水一盒">
+<meta property="og:description" content="redo log和binlog区别；redo log介绍；undo log介绍；mvcc介绍；可重复读原理。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;abfa11d5&#x2F;8d5bb6fc.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;24076982&#x2F;medium.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;e2bb5881&#x2F;medium.png">
+<meta property="og:updated_time" content="2020-04-13T10:16:40.428Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;pic.yupoo.com&#x2F;koala6&#x2F;abfa11d5&#x2F;8d5bb6fc.png">
   
     <link rel="alternate" href="/atom.xml" title="Koala`s blog" type="application/atom+xml">
   
@@ -61,59 +67,110 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/articles/MySQL%E7%9A%84%E6%97%A5%E5%BF%97.html" class="archive-article-date">
-  <time datetime="2020-03-16T10:16:20.000Z" itemprop="datePublished">Mar 16</time>
+        <section id="main"><article id="post-MySQL的日志" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/articles/MySQL%E7%9A%84%E6%97%A5%E5%BF%97.html" class="article-date">
+  <time datetime="2020-03-16T10:16:20.000Z" itemprop="datePublished">2020-03-16</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/MySQL/">MySQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/articles/MySQL%E7%9A%84%E6%97%A5%E5%BF%97.html">MySQL—日志</a>
+    <h1 class="article-title" itemprop="name">
+      MySQL—日志
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/articles/HashMap.html" class="archive-article-date">
-  <time datetime="2020-01-05T14:13:26.000Z" itemprop="datePublished">Jan 5</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/articles/HashMap.html">Java集合—HashMap</a>
-    </h1>
-  
+	  
+	  <!-- 文章目录 -->
+    
+	  
+	  
+        <p>redo log和binlog区别；redo log介绍；undo log介绍；mvcc介绍；可重复读原理。</p>
+<a id="more"></a>
 
-    </header>
+<h3 id="redo-log-和-binlog的区别"><a href="#redo-log-和-binlog的区别" class="headerlink" title="redo log 和 binlog的区别"></a>redo log 和 binlog的区别</h3><p>1、redo log是InnoDB引擎层实现。binlog是MySQL-Server层实现</p>
+<p>2、redo log是物理日志：面向数据页，记录页的修改。binlog是逻辑日志，面向SQL语句，记录执行了哪些语句。</p>
+<p>3、redo log面向数据页的修改，是并发写入的。不同事务的记录会穿插写入到redo log文件中。</p>
+<p>​      binlog面向SQL,是在事务提交的时候一次性写入。</p>
+<h3 id="redo-log"><a href="#redo-log" class="headerlink" title="redo log"></a>redo log</h3><h4 id="redo-log-基本概念"><a href="#redo-log-基本概念" class="headerlink" title="redo log 基本概念"></a><strong>redo log 基本概念</strong></h4><p> 由两部分组成：内存中的<code>redo log buffer</code>, 磁盘上的redo log file。前者是易失性的。后者是持久性的。</p>
+<p><strong>WAL预写日志</strong></p>
+<p>发生修改时，会先写redo log到磁盘，再将脏数据更新到数据文件</p>
+<p><strong>redo log日志持久化到文件的过程</strong></p>
+<p><img src="https://pic.yupoo.com/koala6/abfa11d5/8d5bb6fc.png" alt="redo log刷入磁盘要经历的几个阶段"></p>
+<h4 id="redo-log-刷磁盘的参数"><a href="#redo-log-刷磁盘的参数" class="headerlink" title="redo log 刷磁盘的参数"></a><strong>redo log 刷磁盘的参数</strong></h4><p>innodb_flush_log_at_trx_commit={0|1|2} # 指定何时将事务日志刷到磁盘，默认为1。</p>
+<p><strong>1、</strong>    0表示每秒将”log buffer”同步到”os buffer”且从”os buffer”刷到磁盘日志文件中。</p>
+<p><strong>2、</strong>    1表示每事务提交都将”log buffer”同步到”os buffer”且从”os buffer”刷到磁盘日志文件中。</p>
+<p><strong>3、</strong>    2表示每事务提交都将”log buffer”同步到”os buffer”但每秒才从”os buffer”刷到磁盘日志文件中。</p>
+<h4 id="redo-log持久化文件的结构"><a href="#redo-log持久化文件的结构" class="headerlink" title="redo log持久化文件的结构"></a><strong>redo log持久化文件的结构</strong></h4><p>采用循环写的方式</p>
+<p><img src="https://pic.yupoo.com/koala6/24076982/medium.png" alt="redo log file"></p>
+<p>write pos是当前记录的位置，边写边后移。</p>
+<p>checkpoint 是当前要擦除的位置，边更新到数据，边后移。</p>
+<h3 id="undo-log"><a href="#undo-log" class="headerlink" title="undo log"></a>undo log</h3><h4 id="undo-log的基本概念"><a href="#undo-log的基本概念" class="headerlink" title="undo log的基本概念"></a>undo log的基本概念</h4><p><strong>undo log 应用</strong></p>
+<p>回滚、MVCC</p>
+<p><strong>undo log记录什么内容</strong></p>
+<p>undo log存储的是逻辑日志。即记录的是SQL语句。insert一条数据，undo log会记录一条delete语句。update一条数据，undo log会记录一条相反的update记录。</p>
+<p><strong>undo log分为两种</strong></p>
+<p>insert undo log<br>代表事务在insert新记录时产生的undo log, 只在事务回滚时需要，并且在事务提交后可以被立即丢弃</p>
+<p>update undo log<br>事务在进行update或delete时产生的undo log; 不仅在事务回滚时需要，在快照读时也需要；所以不能随便删除，只有在快速读或事务回滚不涉及该日志时，对应的日志才会被purge线程统一清除</p>
+<hr>
+<h3 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h3><p>mvcc多版本并发控制，是指同一记录在系统中可以存在多个版本。通过mvcc,可以实现非阻塞读和写操作的并发。</p>
+<hr>
+<h3 id="可重复读"><a href="#可重复读" class="headerlink" title="可重复读"></a>可重复读</h3><p><strong>可重复读需要什么</strong></p>
+<p>在InnoDB在RR隔离级别下，可重复读就是通过mvcc实现的。</p>
+<p>InnoDB在每行数据后维护了几个隐藏的列，其中</p>
+<p><code>DB_TRX_ID</code>事务ID</p>
+<p><code>DB_ROLL_PTR</code>回滚指针</p>
+<p>配合上undo log，一起实现了可重复读机制。</p>
+<p><strong>可重复读流程</strong></p>
+<p>在事务A中进行快照读时，会创建read-view，记录以下三个属性：</p>
+<p>1、当前活跃的事务<code>list</code>，</p>
+<p>2、当前活跃事务中最小的id     <code>up_limit_id</code>,</p>
+<p>3、当前系统尚未分配的下一个事务id    <code>low_limit_id</code>。</p>
+<p>在后续的快照读时，会比较所要读取的行的版本号<code>trx_id</code>：</p>
+<p><code>trx_id &lt; up_limit_id</code>,则该行对本事务可见。</p>
+<p><code>trx_id &gt;= low_limit_id</code>,该行是在本事务后才出现的，当然不可见。</p>
+<p><code>up_limit_id  &lt;= trx_id &lt; low_limit_id</code>,则需要判断<code>trx_id</code>是否在活跃事务list中，如果在，则不可见。如果不在，则可见。（对应的场景是，当前事务A开始后，有其他事务开始并提交，此时进行快照读，建立read-view。这种场景需要能看到其他事务提交过的记录）</p>
+<p>以上快照读在数据表中没有读到可见的版本时，去哪里找可见的版本？</p>
+<p>答案就是，通过InnoDB维护的隐藏列<code>DB_ROLL_PTR</code>即回滚指针，在undo log中沿着”链表“结构的日志，向前找到可见的行记录。</p>
+<p><img src="https://pic.yupoo.com/koala6/e2bb5881/medium.png" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/articles/MySQL%E7%9A%84%E6%97%A5%E5%BF%97.html" data-id="ck8ybpqyl0009ugt69s4l36ld" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+    </footer>
   </div>
-</article>
+  
+    
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/articles/HashMap.html" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Java集合—HashMap</div>
+    </a>
   
+</nav>
 
+  
+</article>
 
 </section>
         
